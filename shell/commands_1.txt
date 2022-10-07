@@ -1,0 +1,2 @@
+Pipeline used to solve task no. 1 of assignment #5
+wc -c * | sort -r | head -n 4 | tail -n 3 > biggest_3_files.txt

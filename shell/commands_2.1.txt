@@ -1,0 +1,2 @@
+Pipeline used to make the counts of the files of size 0 kB:
+wc -c *.JPG | sort | cut -wf 2 | uniq -c | head -n 1

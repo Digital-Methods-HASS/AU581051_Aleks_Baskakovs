@@ -1,0 +1,78 @@
+---
+title: "3:W35: Start with R - Homework for Cultural Data Science"
+output:
+  html_document:
+    df_print: paged
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+
+## Exercise #1
+```{r}
+
+rooms <- c(1, 2, 4, 5, 1, 3, 1, NA, 3, 1, 3, 2, 1, NA, 1, 8, 3, 1, 4, NA, 1, 3, 1, 2, 1, 7, 1, 9, 3, NA)
+
+which = which(rooms>2) %>% # This command will return a vector with numbers which correspond to INDECES in the rooms vector are bigger than the value 2.
+rooms[.] %>%  # We then use this vector to select only those indeces in the rooms vector
+length() # and then we simply look at it's length to answer our question - how many elements in the vector are bigger than value 2!
+
+which
+```
+Result - *TWELVE*!
+
+Now we go on with finding the sum of the elements found above:
+```{r}
+# Same procedure, only instead of length(), we use sum!
+
+which(rooms>2) %>% 
+  rooms[.] %>%
+  sum()
+```
+Results - *FIFTY FIVE*
+
+## Exercise #2
+
+Well, we just use R-inbuilt class() function to find out which classes our rooms vector contain.
+```{r}
+class(rooms)
+```
+Numeric!
+
+## Exercise #3
+```{r}
+download.file("https://ndownloader.figshare.com/files/11492171","SAFI_clean.csv", mode = "wb")
+interviews = read_csv("SAFI_clean.csv")
+view(interviews)
+```
+Link to the photo on GitHub: https://github.com/Digital-Methods-HASS/AU581051_Aleks_Baskakovs/blob/main/Screenshot%202022-10-07%20at%2015.49.15%20(2).png
+
+## Exercise #4 
+```{r message = FALSE}
+
+monarchs = read_csv2("danish_monarchs.csv") %>%  #  Read the csv
+  as_tibble() %>% # Transform it in to a tibble object
+  select(1:7) %>% # Selecting from 1st to 7th row only as the last two columns are empty
+  mutate(reigned_years = end_reign-start_reign) %>% # Mutating(adding) a column for the total number of years a monrach has reigned
+  mutate(reigned_days = (reigned_years %/% 4)*366 + (reigned_years - (reigned_years %/% 4))*365) %>% # Total days reigned
+  filter(!is.na(reigned_days)) # Taking Queen Mags (Marghrete) out since she is still ruling.
+
+
+# Some very simple descriptive analysis!
+paste("The mean of rule over time of the Danish monarchs is",round(mean(monarchs$reigned_days), 2),"days")
+paste("The median of rule over time of the Danish monarchs is",median(monarchs$reigned_days),"days")
+
+# Let's find out which monarchs ruled the longest!
+monarchs %>% arrange(desc(reigned_days)) %>% # Arranging the columns in a "descending" manner
+  .[1:3,] %>% # Selecting only the rows we need - so top three!
+  select(Monarch,reigned_days) # And lets only select the columns we are interested in
+```
+Behold!

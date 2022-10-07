@@ -1,0 +1,3 @@
+Pipeline used to generate a list of the filenames of the files that are of 
+size 0 kB:
+wc -c *.JPG | sort | head -n 73 | cut -wf 3 > files_size_0.txt
