@@ -1,0 +1,113 @@
+---
+title: "visualization"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+
+# Load the data
+
+```{r}
+
+df = read.csv("policekillings202010.csv")
+
+```
+
+# Let's visualize something!
+
+So, in the master file we have looked at race, age, method of crime, as well as some state-specific metrics.
+
+Instead of having to look at state by state, wouldn't it be much better if we had a map of the US we could map data onto?
+
+If you, like myself, can't, at gun point (pun intended), say where 70% of US states are located, you'll greatly benefit from this.
+
+Let's get into it.
+
+```{r}
+
+# This is the ggplot function for our desired map. 
+
+#ggplot() + 
+  #geom_polygon(data=fifty_states, aes(x=lon, y=lat, group = group),color="white", fill="grey10")
+
+# Oh we need to load and install a the library to run this!
+
+#devtools::install_github("wmurphyrd/fiftystater")
+
+# Then let's load the library.
+
+library(fiftystater)
+
+# And load the data necessary for the function to run
+data("fifty_states")
+
+ggplot() + 
+  geom_polygon(data=fifty_states, aes(x=long, y=lat, group = group),color="white", fill="grey10")
+
+```
+
+Voila!!
+
+Let's map some stats onto it.
+
+But wait, before we do that, we need to make sure our data has longitude and latitude information for each observation - so we can map onto the X and Y coordinates in our plot above!
+
+
+```{r}
+
+# I found this CSV online. Why work when you don't have to work!
+
+longlat = read.csv("state-medal-count.csv")
+
+# Now what we need to do is to merge two dataframes together. We do it using inbuilt function merge() that takes three arguments: merge(df1, df2, by = "column")
+
+#That last one is important - it means we need two indentical columns in our dataframes to successfully merge it.
+
+# For us this will be state names - CA, WA, etc...
+
+# As you can see, in the longlat df, the variable is "state", whereas in df it's "State".
+# R will treat them as different columns - so we need to rename one.
+
+longlat = longlat %>% 
+  rename(State = state) %>% 
+  select(-(medals))
+
+# Ready now!
+
+df = merge(df, longlat, by = "State")
+
+# Boom!
+# As you can see, there are now about 800 observations fewer.
+# That's because our CSV from the world wide web doesn't have South Dakota and West Virginia.
+# But who cares about them!
+
+```
+
+We are ready moms spaghetti.
+
+Let's the topography of killings in the US!
+
+```{r}
+
+# First, we need to prepare a dataframe that displays # of killings in each state.
+
+df_states = df %>% 
+  group_by(State, lon, lat) %>% 
+  summarize(count = n())
+
+ggplot() + 
+  geom_polygon(data=fifty_states, aes(x=long, y=lat, group = group),color="white", fill="grey92") +
+  # This is where we start inserting our data on top of the map
+  geom_point(data = df_states, aes(x = lon, y = lat, size = count)) +
+  theme_void()
+
+```
+
+What else can we visualize?
